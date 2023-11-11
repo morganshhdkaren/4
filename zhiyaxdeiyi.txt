@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+contract LineaStaking {
+
+  IERC20 public stakingToken; //质押代币
+
+  uint public totalStaked;
+
+  mapping(address => uint) public stakedAmount;
+
+  constructor(address _stakingToken) {
+    stakingToken = IERC20(_stakingToken);
+  }
+
+  function stake(uint _amount) public {
+
+    // 从用户账户转移代币
+    stakingToken.transferFrom(msg.sender, address(this), _amount);  
+
+    // 更新存储
+    totalStaked += _amount;
+    stakedAmount[msg.sender] += _amount;
+
+  }
+
+  function withdraw(uint _amount) public {
+   
+    // 检查质押数量够否
+    require(stakedAmount[msg.sender] >= _amount, "Amount exceeds stake");
+
+    // 转账
+    stakingToken.transfer(msg.sender, _amount);
+
+    // 更新存储
+    totalStaked -= _amount;
+    stakedAmount[msg.sender] -= _amount;
+
+  }
+
+}
